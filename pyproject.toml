@@ -1,0 +1,74 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "factr"
+version = "0.1.0"
+description = "Elegant factor analysis for quantitative finance, built on Polars"
+readme = "README.md"
+requires-python = ">=3.11,<3.15"
+license = {text = "MIT"}
+authors = [
+    {name = "Carl Sandström", email = "carl.sandstrom92@gmail.com"}
+]
+keywords = ["quantitative finance", "factor analysis", "cross-sectional", "polars", "portfolio optimization"]
+classifiers = [
+    "Intended Audience :: Financial and Insurance Industry",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Office/Business :: Financial :: Investment",
+    "Topic :: Scientific/Engineering",
+]
+
+dependencies = [
+    "polars>=1.0.0,<2.0.0",
+    "numpy>=1.23.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "ruff>=0.1.0",
+    "hypothesis>=6.0",
+]
+
+sql = [
+    "adbc-driver-postgresql>=0.8.0",
+    "adbc-driver-sqlite>=0.8.0",
+]
+
+all = [
+    "factr[dev,sql]",
+]
+
+[project.urls]
+Homepage = "https://github.com/gilvir/factr"
+Documentation = "https://github.com/gilvir/factr#readme"
+Repository = "https://github.com/gilvir/factr"
+
+[tool.setuptools]
+packages = ["factr", "factr.data", "factr.core"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "-v"
+filterwarnings = [
+    "ignore:Sortedness of columns cannot be checked:UserWarning",
+    "ignore:Custom factor '.*' uses map_batches which disables Polars optimization:UserWarning",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # unused imports
