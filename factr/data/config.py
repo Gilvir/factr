@@ -43,9 +43,7 @@ class DataSetConfig:
     entity_column: str = "asset"
 
     reporting_delay: int = 0
-    forward_fill_columns: list[str] = field(
-        default_factory=list
-    )
+    forward_fill_columns: list[str] = field(default_factory=list)
     is_primary: bool = False
 
     def resolve_source(self) -> DataSource:

@@ -297,5 +297,7 @@ def custom_factor(
                 source_columns=source_cols_frozen,
                 source_datasets=source_datasets_frozen,
             )
+
         return factor_builder
+
     return decorator

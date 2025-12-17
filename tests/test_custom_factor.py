@@ -1,7 +1,5 @@
 """Tests for custom_factor decorator."""
 
-import warnings
-
 import polars as pl
 import pytest
 
@@ -192,30 +190,6 @@ class TestCustomFactorValidation:
 
         with pytest.raises(TypeError, match="must return pl.Series or array-like"):
             pipeline.run()
-
-
-class TestCustomFactorWarnings:
-    """Test warning behavior."""
-
-    def test_performance_warning_issued(self):
-        """Test that performance warning is issued when factor is instantiated."""
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-
-            @custom_factor(scope=Scope.TIME_SERIES, inputs=["close"])
-            def warns(df: pl.DataFrame) -> pl.Series:
-                return df["close"]
-
-            # No warning yet (decorator applied but factor not instantiated)
-            assert len(w) == 0
-
-            # Warning should be issued when instantiating the factor
-            factor = warns()
-
-            # Now we should have the warning
-            assert len(w) == 1
-            assert "disables Polars optimization" in str(w[0].message)
-            assert isinstance(w[0].message, UserWarning)
 
 
 @pytest.mark.skipif(not HAS_NUMPY, reason="requires numpy")

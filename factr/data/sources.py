@@ -6,9 +6,12 @@ Each source is ~20 lines. Leverage Polars, don't rebuild it.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import polars as pl
+
+if TYPE_CHECKING:
+    from sqlalchemy.sql.selectable import Select
 
 
 class DataFrameSource:
@@ -157,6 +160,38 @@ class CSVSource:
         return lf
 
 
+def _compile_sqlalchemy_query(query: Select, connection: Any) -> str:
+    """Compile a SQLAlchemy Select to a SQL string.
+
+    Args:
+        query: SQLAlchemy Select object
+        connection: Connection string or SQLAlchemy engine/connection
+
+    Returns:
+        Compiled SQL string
+    """
+    from sqlalchemy import create_engine
+    from sqlalchemy.engine import Engine
+
+    if isinstance(connection, str):
+        engine = create_engine(connection)
+        dialect = engine.dialect
+    elif isinstance(connection, Engine):
+        dialect = connection.dialect
+    elif hasattr(connection, "engine"):
+        dialect = connection.engine.dialect
+    elif hasattr(connection, "dialect"):
+        dialect = connection.dialect
+    else:
+        dialect = None
+
+    compiled = query.compile(
+        dialect=dialect,
+        compile_kwargs={"literal_binds": True},
+    )
+    return str(compiled)
+
+
 class SQLSource:
     """Read from SQL database.
 
@@ -169,10 +204,17 @@ class SQLSource:
         ...     connection='sqlite:///data.db',
         ...     table='prices'
         ... )
-        >>> # Or with custom query
+        >>> # Or with custom query string
         >>> source = SQLSource(
         ...     connection='postgresql://user:pass@host/db',
         ...     query='SELECT * FROM prices WHERE asset = ?'
+        ... )
+        >>> # Or with SQLAlchemy query
+        >>> from sqlalchemy import select
+        >>> from mymodels import prices_table
+        >>> source = SQLSource(
+        ...     connection='postgresql://user:pass@host/db',
+        ...     query=select(prices_table).where(prices_table.c.asset == 'AAPL')
         ... )
         >>> lf = source.read(start_date='2020-01-01')
     """
@@ -180,7 +222,7 @@ class SQLSource:
     def __init__(
         self,
         connection: str | Any,
-        query: str | None = None,
+        query: str | Select | None = None,
         table: str | None = None,
         column_mapping: dict[str, str] | None = None,
         **read_kwargs: Any,
@@ -188,8 +230,8 @@ class SQLSource:
         """Initialize with connection.
 
         Args:
-            connection: Connection string or connection object
-            query: SQL query (if None, reads entire table)
+            connection: Connection string or connection object (e.g., SQLAlchemy engine)
+            query: SQL query string or SQLAlchemy Select object (if None, reads entire table)
             table: Table name (alternative to query)
             column_mapping: Optional {source_col: target_col} mapping
             **read_kwargs: Additional args passed to pl.read_database
@@ -198,7 +240,14 @@ class SQLSource:
             raise ValueError("Must provide either 'query' or 'table'")
 
         self.connection = connection
-        self.query = query or f"SELECT * FROM {table}"
+        self._sqlalchemy_query: Select | None = None
+
+        if query is not None and not isinstance(query, str):
+            self._sqlalchemy_query = query
+            self.query = _compile_sqlalchemy_query(query, connection)
+        else:
+            self.query = query or f"SELECT * FROM {table}"
+
         self.column_mapping = column_mapping or {}
         self.read_kwargs = read_kwargs
 
