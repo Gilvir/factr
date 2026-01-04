@@ -62,4 +62,3 @@ Thumbs.db
 # Notebooks
 .ipynb_checkpoints/
 *.ipynb
-uv.lock
