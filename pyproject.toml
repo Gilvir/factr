@@ -40,6 +40,8 @@ dev = [
     "pytest-cov>=4.0",
     "ruff>=0.1.0",
     "hypothesis>=6.0",
+    "pandas>=2.0.0",  # Required for SQL tests (Polars write_database)
+    "pyarrow>=8.0.0",  # Required for SQL tests (Polars write_database)
 ]
 
 sql = [
