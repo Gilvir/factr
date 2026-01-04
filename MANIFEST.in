@@ -1,0 +1,26 @@
+# Include documentation
+include README.md
+include LICENSE
+include CHANGELOG.md
+include CONTRIBUTING.md
+
+# Include configuration files
+include pyproject.toml
+include .gitignore
+
+# Include type information
+recursive-include factr *.py
+recursive-include factr py.typed
+
+# Include examples and tests in sdist
+recursive-include examples *.py
+recursive-include tests *.py
+
+# Exclude development artifacts
+global-exclude __pycache__
+global-exclude *.py[cod]
+global-exclude *.so
+global-exclude .coverage
+global-exclude .pytest_cache
+global-exclude *.egg-info
+global-exclude .ruff_cache

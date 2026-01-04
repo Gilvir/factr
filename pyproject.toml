@@ -14,15 +14,19 @@ authors = [
 ]
 keywords = ["quantitative finance", "factor analysis", "cross-sectional", "polars", "portfolio optimization"]
 classifiers = [
+    "Development Status :: 3 - Alpha",
     "Intended Audience :: Financial and Insurance Industry",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
     "Topic :: Office/Business :: Financial :: Investment",
     "Topic :: Scientific/Engineering",
+    "Typing :: Typed",
 ]
 
 dependencies = [
@@ -55,6 +59,9 @@ Repository = "https://github.com/gilvir/factr"
 
 [tool.setuptools]
 packages = ["factr", "factr.data", "factr.core"]
+
+[tool.setuptools.package-data]
+factr = ["py.typed"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

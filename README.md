@@ -9,7 +9,19 @@ Composable factor definitions with automatic scope-based execution. Factors wrap
 ## Installation
 
 ```bash
-pip install -e .[dev]
+pip install factr
+```
+
+For development (using [uv](https://github.com/astral-sh/uv)):
+```bash
+git clone https://github.com/gilvir/factr.git
+cd factr
+uv pip install -e ".[dev]"
+```
+
+Or with pip:
+```bash
+pip install -e ".[dev]"
 ```
 
 ## Quick Start
@@ -48,8 +60,9 @@ print(result)
 ### Sector-Neutral Strategy
 
 ```python
-from factr.datasets import EquityPricing, ReferenceData
+from factr.datasets import EquityPricing
 from factr.universe import Q500US
+from factr.pipeline import Pipeline
 from factr import factors as F
 
 # Define factors
@@ -63,8 +76,9 @@ sector_neutral = risk_adjusted.demean(by='sector')
 ranked = sector_neutral.rank(pct=True)
 
 # Build pipeline with universe filter
+# Assumes you have a LazyFrame 'prices_lf' with columns: date, asset, close, volume, sector
 pipeline = (
-    Pipeline(data)
+    Pipeline(prices_lf)
     .add_factors({
         'sector_neutral_mom': sector_neutral,
         'rank': ranked,
@@ -148,7 +162,7 @@ data = ctx.load_many(
 - **No global state** - DataContext is explicit and composable
 - **Testing-friendly** - clone contexts, swap sources easily
 
-See `examples/dataset_loading.py` for comprehensive examples.
+See `examples/data_loading_example.py` for comprehensive examples.
 
 ## Core Concepts
 
@@ -392,23 +406,45 @@ factr/
 
 ## Examples
 
+See the [examples/](examples/) directory for complete runnable examples:
+- `quickstart.py` - Get started in 5 minutes
+- `factor_api_example.py` - Comprehensive API coverage
+- `data_loading_example.py` - Data loading patterns
+- `sqlite_example.py` - SQLite integration
+- `performance_example.py` - Large-scale benchmarking
+
 ```python
-# Multi-factor
+from factr import factors as F
+from factr.pipeline import Pipeline
+from factr.universe import Q500US
+
+# Multi-factor alpha combining momentum and value
 mom = F.momentum(252, 21)
 value = F.earnings_yield()
 alpha = (mom + value) / 2
 
-pipeline = Pipeline(data).add_factors({'alpha': alpha}).screen(Q500US())
+# Build pipeline (assumes you have data loaded)
+pipeline = Pipeline(prices_lf).add_factors({'alpha': alpha}).screen(Q500US())
 result = pipeline.run(start_date='2020-01-01')
 ```
 
 ## Testing
 
 ```bash
-pytest
-black factr tests examples
-ruff check factr tests examples --fix
+# Run tests
+uv run pytest
+
+# Run tests with coverage
+uv run pytest --cov=factr --cov-report=term-missing
+
+# Format code
+uv run ruff format factr tests examples
+
+# Lint and auto-fix
+uv run ruff check factr tests examples --fix
 ```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed development guidelines.
 
 ## License
 
