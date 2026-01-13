@@ -9,7 +9,7 @@ Composable factor definitions with automatic scope-based execution. Factors wrap
 ## Installation
 
 ```bash
-pip install factr
+pip install git+https://github.com/gilvir/factr.git
 ```
 
 For development (using [uv](https://github.com/astral-sh/uv)):
