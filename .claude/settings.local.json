@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc:*)",
+      "Bash(uv run:*)",
+      "Bash(find:*)",
+      "Bash(cat:*)",
+      "Bash(tree:*)",
+      "Bash(xargs ls:*)",
+      "Bash(git check-ignore:*)",
+      "Bash(uv pip install:*)",
+      "Bash(UV_PROJECT_ENVIRONMENT=test-env uv run python:*)",
+      "Bash(python3:*)",
+      "Bash(tar:*)",
+      "WebSearch"
+    ]
+  }
+}
